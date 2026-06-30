@@ -185,10 +185,10 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
     }
 
     // Desktop : check 2 verticales adjacentes (PATCH 5 baseline)
-    if (r < 0.9 && i+1 < images.length){
+    if (r < 1.0 && i+1 < images.length){
       const nxt = images[i+1];
       const nr = nxt.width / nxt.height;
-      if (nr < 0.9){
+      if (nr < 1.0){
         const pair = pairVerticalsBaseline(cur, nxt, effWidth, gap, viewportHeight, viewportWidth);
         rows.push({ type: 'vertical-pair', gap, height: pair[0].h, items: pair });
         i += 2; rowIdx++; continue;
@@ -214,13 +214,16 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
       if (rowItems.length > 0 && (widthSum + w + gap > effWidth || rowItems.length >= maxIn)){
         // PATCH 3 : distribuer avec last-child consume
         const finalH = Math.round((effWidth - (rowItems.length-1)*gap) / rowItems.reduce((s,it)=>s+(it.width/it.height),0));
-        const cappedH = Math.min(finalH, ceiling);
-        const items = distributeWidths(rowItems, effWidth, gap, cappedH);
-        // Recompute heights based on cappedH if capped
+        let items;
         if (finalH > ceiling){
-          items.forEach(it => { it.h = Math.round(it.w / (it.img.width/it.img.height)); });
-          const maxH = Math.max(...items.map(it => it.h));
-          items.forEach(it => { it.h = maxH; });
+          // BUG FIX : clamp height au ceiling + recalculer widths proportionnellement
+          // (la row sera centrée par CSS justify-content:center, marges symétriques OK)
+          items = rowItems.map(it => {
+            const r = it.width / it.height;
+            return { img: it, w: Math.floor(ceiling * r), h: ceiling };
+          });
+        } else {
+          items = distributeWidths(rowItems, effWidth, gap, finalH);
         }
         rows.push({ type: 'standard', gap, height: Math.max(...items.map(it=>it.h)), items });
         rowIdx++; break;
@@ -235,12 +238,14 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
         // Si rowItems > 1, build row standard finale
         if (rowItems.length >= 2){
           const finalH = Math.round((effWidth - (rowItems.length-1)*gap) / rowItems.reduce((s,it)=>s+(it.width/it.height),0));
-          const cappedH = Math.min(finalH, ceiling);
-          const items = distributeWidths(rowItems, effWidth, gap, cappedH);
+          let items;
           if (finalH > ceiling){
-            items.forEach(it => { it.h = Math.round(it.w / (it.img.width/it.img.height)); });
-            const maxH = Math.max(...items.map(it => it.h));
-            items.forEach(it => { it.h = maxH; });
+            items = rowItems.map(it => {
+              const r = it.width / it.height;
+              return { img: it, w: Math.floor(ceiling * r), h: ceiling };
+            });
+          } else {
+            items = distributeWidths(rowItems, effWidth, gap, finalH);
           }
           rows.push({ type: 'standard', gap, height: Math.max(...items.map(it=>it.h)), items });
         } else {
