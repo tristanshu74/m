@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="theme-color" content="#000000">
+<title>Making of &amp; pack shots · Mbappé Project</title>
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--body:#3a3a3c;--muted:#6e6e73;--accent:#1d1d1f;--line:#d2d2d7}
+@media(prefers-color-scheme:dark){:root{--bg:#000;--fg:#f5f5f7;--body:#d2d2d7;--muted:#86868b;--accent:#f5f5f7;--line:#3a3a3c}}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font:17px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.022em;font-feature-settings:"ss01","ss02","cv11"}
+a{color:var(--accent);text-decoration:none}
+nav{position:sticky;top:0;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--line);z-index:50}
+@media(prefers-color-scheme:dark){nav{background:rgba(0,0,0,.72)}}
+nav .wrap{max-width:1400px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:20px;font-size:14px;font-weight:500}
+nav .brand{font-weight:600;letter-spacing:-.01em}
+nav .sep{color:var(--muted);font-weight:400}
+nav .back{margin-left:auto;color:var(--muted);font-weight:400;font-size:13px}
+header.gallery-hero{padding:48px 22px 32px;text-align:center;max-width:720px;margin:0 auto}
+header.gallery-hero .eyebrow{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;margin-bottom:18px;text-transform:uppercase}
+header.gallery-hero h1{font-size:42px;line-height:1.05;font-weight:600;letter-spacing:-.02em;margin:0 0 14px}
+header.gallery-hero .sub{font-size:16px;color:var(--body)}
+@media(max-width:600px){header.gallery-hero{padding:36px 20px 24px}header.gallery-hero h1{font-size:30px}}
+main{max-width:1400px;margin:0 auto;padding:0}
+.gallery-engine{padding:0 var(--breath,24px) var(--breath,24px)}
+.gallery-row{display:flex;margin-bottom:var(--breath,24px)}
+.gallery-row.magazine{flex-direction:row;align-items:stretch}
+.gallery-row.magazine .stack{display:flex;flex-direction:column}
+.gallery-row.single-centered{justify-content:center}
+.gallery-item{position:relative;overflow:hidden;background:var(--line);flex-shrink:0}
+.gallery-item img{display:block;width:100%;height:100%;object-fit:cover}
+footer{padding:32px 22px 56px;text-align:center;border-top:.5px solid var(--line);font-size:13px;color:var(--muted);line-height:1.6;margin-top:32px}
+footer strong{color:var(--fg);font-weight:500}
+</style>
+</head><body>
+<nav><div class="wrap"><span class="brand">Tristan Shu</span><span class="sep">·</span><span>Making of &amp; pack shots</span><a class="back" href="delivery2.html">← Back to delivery</a></div></nav>
+<header class="gallery-hero">
+  <p class="eyebrow">Mbappé Project · Under embargo</p>
+  <h1>Making of.</h1>
+  <p class="sub">17 frames · Behind the scenes</p>
+</header>
+<main><div id="gallery" class="gallery-engine"></div></main>
+<footer><strong>Tristan Shu Lebeschu</strong> · shu@tristanshu.com · Under embargo</footer>
+<script src="js/gallery-engine.js"></script>
+<script>
+(async function(){
+  const manifest = await fetch('img/making/manifest.json').then(r => r.json());
+  const images = await TristanShuGallery.loadGalleryImages(manifest.map(f => 'img/making/' + f));
+  const el = document.getElementById('gallery');
+  function relayout(){
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const cw = el.clientWidth || el.parentElement.clientWidth || vw;
+    const lay = TristanShuGallery.calculateLayout(images, cw, vw, vh);
+    TristanShuGallery.renderGallery(el, lay);
+  }
+  relayout();
+  new ResizeObserver(() => requestAnimationFrame(relayout)).observe(document.body);
+  window.addEventListener('resize', () => requestAnimationFrame(relayout));
+})();
+</script>
+</body></html>
