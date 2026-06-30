@@ -52,7 +52,8 @@ footer strong{color:var(--fg);font-weight:500}
   function relayout(){
     const vw = window.innerWidth, vh = window.innerHeight;
     const cw = el.clientWidth || el.parentElement.clientWidth || vw;
-    const lay = TristanShuGallery.calculateLayout(images, cw, vw, vh);
+    const mode = new URLSearchParams(window.location.search).get('mode') || 'editorial';
+    const lay = TristanShuGallery.calculateLayout(images, cw, vw, vh, { mode });
     TristanShuGallery.renderGallery(el, lay);
   }
   relayout();

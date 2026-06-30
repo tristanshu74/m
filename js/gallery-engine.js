@@ -13,8 +13,19 @@ const BREATH_CONFIG = {
   titan:{vw:0.010,minRem:3.5,maxRem:4.0}
 };
 function getBreakpoint(w){if(w<360)return'micro';if(w<480)return'phoneS';if(w<768)return'phoneL';if(w<1024)return'tablet';if(w<1536)return'desktopS';if(w<2560)return'desktopM';if(w<3840)return'ultra';if(w<5120)return'extreme';return'titan';}
-function getRootFontSize(){return parseFloat(getComputedStyle(document.documentElement).fontSize)||16;}
-function calculateBreath(vw){const cfg=BREATH_CONFIG[getBreakpoint(vw)];const rfs=getRootFontSize();return Math.max(cfg.minRem*rfs,Math.min(cfg.maxRem*rfs,vw*cfg.vw));}
+// PATCH dev HIGH#2 : cache rootFontSize (sinon appelé 100+ fois inline = reflow blocking)
+let _cachedRootFontSize = null;
+function getRootFontSize(){
+  if (_cachedRootFontSize !== null) return _cachedRootFontSize;
+  _cachedRootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  return _cachedRootFontSize;
+}
+function invalidateRootFontSizeCache(){ _cachedRootFontSize = null; }
+function calculateBreath(vw){
+  const cfg = BREATH_CONFIG[getBreakpoint(vw)];
+  const rfs = getRootFontSize();
+  return Math.max(cfg.minRem*rfs, Math.min(cfg.maxRem*rfs, vw*cfg.vw));
+}
 
 // PATCH BUG 2 : UNIQUE GAP TOKEN (Vignelli+Frost)
 function getGap(vw){ return vw < 768 ? 16 : 24; }
@@ -92,12 +103,18 @@ function buildMagazineRow(detection, effWidth, gap, viewportHeight){
 }
 
 // === MAIN LAYOUT ENGINE ===
-function calculateLayout(images, containerWidth, viewportWidth, viewportHeight){
+function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, options = {}){
+  // PATCH NEW dev 0473DF95 : mode switch editorial | chronological
+  // - 'editorial' (default) : magazine layout déclenché si [V,H,H] strict consecutive source
+  // - 'chronological' : aucune réorganisation, juste rows standard + vertical-pair + orphan-closing
+  const mode = options.mode || 'editorial';
   if (containerWidth === 0 || images.length === 0) return { rows: [], gap: 24 };
   const rows = [];
   let i = 0;
   const gap = getGap(viewportWidth); // PATCH 2 : unique
-  const isMobile = viewportWidth < 600;
+  // PATCH dev RT-FINDING-1 : landscape mobile inclus dans isMobile (sinon hero ratio>1.8 forcé bug)
+  const isLandscapeMobile = viewportHeight < 500 && viewportWidth > viewportHeight && viewportWidth < 1024;
+  const isMobile = viewportWidth < 600 || isLandscapeMobile;
   const isUltraWide = viewportWidth > 2000;
   const effWidth = containerWidth;
   const targetHeights = [38, 42, 40, 44, 36, 41, 39, 43, 37];
@@ -107,7 +124,8 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight){
 
   while (i < images.length){
     // PATCH 4 : magazine STRICT consecutive (no lookahead-5 reorder)
-    if (!isMobile){
+    // PATCH NEW : magazine désactivé en mode chronological
+    if (!isMobile && mode === 'editorial'){
       const mag = detectMagazineStrict(images, i);
       if (mag){
         rows.push(buildMagazineRow(mag, effWidth, gap, viewportHeight));
@@ -165,8 +183,8 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight){
     const ceiling = getCeiling();
 
     while (i < images.length){
-      // Don't pull next magazine triplet into row
-      if (!isMobile && detectMagazineStrict(images, i)) break;
+      // Don't pull next magazine triplet into row (editorial mode only)
+      if (!isMobile && mode === 'editorial' && detectMagazineStrict(images, i)) break;
 
       const img = images[i];
       const rr = img.width / img.height;
@@ -238,7 +256,7 @@ function renderGallery(container, layout){
       const vEl = document.createElement('div');
       vEl.className = 'gallery-item';
       vEl.style.cssText = `width:${v.w}px;height:${v.h}px`;
-      vEl.innerHTML = `<img src="${encodeURI(v.img.src)}" alt="" loading="lazy">`;
+      vEl.innerHTML = `<img loading="lazy" decoding="async" src="${encodeURI(v.img.src)}" alt="" loading="lazy">`;
       rowEl.appendChild(vEl);
       const stack = document.createElement('div');
       stack.className = 'stack';
@@ -247,7 +265,7 @@ function renderGallery(container, layout){
         const it = document.createElement('div');
         it.className = 'gallery-item';
         it.style.cssText = `width:${part.w}px;height:${part.h}px`;
-        it.innerHTML = `<img src="${encodeURI(part.img.src)}" alt="" loading="lazy">`;
+        it.innerHTML = `<img loading="lazy" decoding="async" src="${encodeURI(part.img.src)}" alt="" loading="lazy">`;
         stack.appendChild(it);
       }
       rowEl.appendChild(stack);
@@ -257,7 +275,7 @@ function renderGallery(container, layout){
       const el = document.createElement('div');
       el.className = 'gallery-item';
       el.style.cssText = `width:${it.w}px;height:${it.h}px`;
-      el.innerHTML = `<img src="${encodeURI(it.img.src)}" alt="" loading="lazy">`;
+      el.innerHTML = `<img loading="lazy" decoding="async" src="${encodeURI(it.img.src)}" alt="" loading="lazy">`;
       rowEl.appendChild(el);
     } else {
       rowEl.style.height = row.height + 'px';
@@ -265,7 +283,7 @@ function renderGallery(container, layout){
         const el = document.createElement('div');
         el.className = 'gallery-item';
         el.style.cssText = `width:${it.w}px;height:${it.h}px`;
-        el.innerHTML = `<img src="${encodeURI(it.img.src)}" alt="" loading="lazy">`;
+        el.innerHTML = `<img loading="lazy" decoding="async" src="${encodeURI(it.img.src)}" alt="" loading="lazy">`;
         rowEl.appendChild(el);
       }
     }
