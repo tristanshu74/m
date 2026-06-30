@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="theme-color" content="#000000">
+<title>Mbappé Project · Selected frames · Tristan Shu</title>
+<style>
+:root{
+  --bg:#fff;--fg:#1d1d1f;--body:#3a3a3c;--muted:#6e6e73;
+  --accent:#1d1d1f;--accent-h:#000;--line:#d2d2d7;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#000;--fg:#f5f5f7;--body:#d2d2d7;--muted:#86868b;--accent:#f5f5f7;--accent-h:#fff;--line:#3a3a3c}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font:17px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-weight:400;letter-spacing:-.022em;font-feature-settings:"ss01","ss02","cv11";font-optical-sizing:auto}
+a{color:var(--accent);text-decoration:none}
+
+nav{position:sticky;top:0;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--line);z-index:50}
+@media(prefers-color-scheme:dark){nav{background:rgba(0,0,0,.72)}}
+nav .wrap{max-width:1400px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:20px;font-size:14px;font-weight:500}
+nav .brand{font-weight:600;letter-spacing:-.01em}
+nav .sep{color:var(--muted);font-weight:400}
+nav .meta{margin-left:auto;color:var(--muted);font-weight:400;font-size:13px}
+
+header.hero{padding:80px 22px 56px;text-align:center;max-width:720px;margin:0 auto}
+header.hero .eyebrow{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;margin-bottom:28px;text-transform:uppercase}
+header.hero h1{font-size:56px;line-height:1.05;font-weight:600;letter-spacing:-.02em;margin:0 0 16px}
+header.hero .sub{font-size:19px;line-height:1.4;color:var(--body);font-weight:400;letter-spacing:.005em}
+@media(max-width:600px){header.hero{padding:48px 20px 32px}header.hero h1{font-size:34px}header.hero .sub{font-size:16px}}
+
+main{max-width:1400px;margin:0 auto;padding:0}
+
+section.gallery-section{padding:48px 0 64px}
+section.gallery-section h2{font-size:28px;font-weight:600;letter-spacing:-.01em;text-align:center;margin:0 0 8px}
+section.gallery-section .section-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:36px}
+
+.gallery-engine{padding:0 var(--breath, 24px)}
+.gallery-row{display:flex;margin-bottom:var(--breath, 24px)}
+.gallery-row.magazine{flex-direction:row;align-items:stretch}
+.gallery-row.magazine .stack{display:flex;flex-direction:column}
+.gallery-row.single-centered{justify-content:center}
+.gallery-item{position:relative;overflow:hidden;background:var(--line);flex-shrink:0}
+.gallery-item img{display:block;width:100%;height:100%;object-fit:cover}
+
+footer{padding:48px 22px 64px;text-align:center;border-top:.5px solid var(--line);font-size:13px;color:var(--muted);line-height:1.7;margin-top:32px}
+footer strong{color:var(--fg);font-weight:500}
+.placeholder-notice{background:rgba(180,83,9,.08);border:1px solid rgba(180,83,9,.2);color:#a86b2e;padding:14px 18px;border-radius:8px;margin:24px auto;max-width:700px;font-size:14px;text-align:center}
+@media(prefers-color-scheme:dark){.placeholder-notice{color:#c9821e}}
+</style>
+</head><body>
+
+<nav>
+<div class="wrap">
+  <span class="brand">Tristan Shu</span>
+  <span class="sep">·</span>
+  <span>Mbappé Project · Gallery Engine preview</span>
+  <span class="meta">v2 alpha</span>
+</div>
+</nav>
+
+<header class="hero">
+  <p class="eyebrow">Mbappé Project · Under embargo</p>
+  <h1>Selected frames.</h1>
+  <p class="sub">By Tristan Shu for Fujifilm.</p>
+</header>
+
+<main>
+
+<div class="placeholder-notice" id="loading-notice">
+  Loading galleries — preparing Tristan Shu Gallery Engine vanilla port…
+</div>
+
+<section class="gallery-section">
+  <h2>Final selection</h2>
+  <div class="section-sub">20 frames · Fujifilm X-T6 across 3 bodies</div>
+  <div id="gallery-final" class="gallery-engine"></div>
+</section>
+
+<section class="gallery-section">
+  <h2>Making of &amp; pack shots</h2>
+  <div class="section-sub">17 frames · Behind the scenes</div>
+  <div id="gallery-making" class="gallery-engine"></div>
+</section>
+
+</main>
+
+<footer>
+<strong>Tristan Shu Lebeschu</strong> · shu@tristanshu.com · +33 6 81 36 86 29<br>
+Mbappé Project · X Summit 2026 · Under embargo
+</footer>
+
+<script>
+// ============================================================
+// Tristan Shu Gallery Engine — vanilla JS port (no dependencies)
+// Source : useGalleryEngine.ts (Next.js 16 + React 19) — 456 LOC TS
+// Port : v0.1 alpha — da-prod implementation
+// ============================================================
+
+const BREATH_CONFIG = {
+  micro:    { vw: 0.030, minRem: 0.5,  maxRem: 0.75 },
+  phoneS:   { vw: 0.030, minRem: 0.625, maxRem: 1.25 },
+  phoneL:   { vw: 0.025, minRem: 0.75, maxRem: 1.5  },
+  tablet:   { vw: 0.025, minRem: 1.0,  maxRem: 2.0  },
+  desktopS: { vw: 0.025, minRem: 1.25, maxRem: 2.5  },
+  desktopM: { vw: 0.025, minRem: 1.5,  maxRem: 3.0  },
+  ultra:    { vw: 0.020, minRem: 2.0,  maxRem: 3.5  },
+  extreme:  { vw: 0.015, minRem: 3.0,  maxRem: 3.5  },
+  titan:    { vw: 0.010, minRem: 3.5,  maxRem: 4.0  }
+};
+const CONTAINER_MAX = { micro:null, phoneS:null, phoneL:null, tablet:null, desktopS:null, desktopM:null, ultra:2400, extreme:3200, titan:4000 };
+
+function getBreakpoint(w){
+  if (w < 360) return 'micro';
+  if (w < 480) return 'phoneS';
+  if (w < 768) return 'phoneL';
+  if (w < 1024) return 'tablet';
+  if (w < 1536) return 'desktopS';
+  if (w < 2560) return 'desktopM';
+  if (w < 3840) return 'ultra';
+  if (w < 5120) return 'extreme';
+  return 'titan';
+}
+function getRootFontSize(){ return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
+function calculateBreath(vw){
+  const cfg = BREATH_CONFIG[getBreakpoint(vw)];
+  const rfs = getRootFontSize();
+  return Math.max(cfg.minRem * rfs, Math.min(cfg.maxRem * rfs, vw * cfg.vw));
+}
+function calculateLandscapeBreath(vw){
+  const rfs = getRootFontSize();
+  return Math.max(0.5 * rfs, Math.min(1.0 * rfs, vw * 0.02));
+}
+function calculateContainerMax(vw){ return CONTAINER_MAX[getBreakpoint(vw)]; }
+
+// ============================================================
+// Image loader — pre-fetch dimensions before layout
+// ============================================================
+function loadImageDimensions(src){
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ src, width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => resolve({ src, width: 1500, height: 1000 }); // fallback ratio 3:2
+    img.src = src;
+  });
+}
+
+async function loadGalleryImages(paths){
+  return await Promise.all(paths.map(loadImageDimensions));
+}
+
+// ============================================================
+// Layout engine — pure port of calculateLayout
+// ============================================================
+function calculateLayout(images, containerWidth, viewportWidth, viewportHeight){
+  if (containerWidth === 0 || images.length === 0) return [];
+  const rows = [];
+  let i = 0;
+
+  const isLandscapeMobile = viewportHeight < 500 && viewportWidth > viewportHeight;
+  const breath = isLandscapeMobile ? calculateLandscapeBreath(viewportWidth) : calculateBreath(viewportWidth);
+  const containerMax = calculateContainerMax(viewportWidth);
+  const isMobile = viewportWidth < 600;
+  const isTablet = viewportWidth >= 600 && viewportWidth <= 1024;
+  const isUltraWide = viewportWidth > 2000;
+  const effWidth = containerMax ? Math.min(containerWidth, containerMax) : containerWidth;
+
+  const targetHeights = [32, 35, 38, 40, 33, 37, 34, 39, 36];
+  const getTargetH = (idx) => Math.floor((targetHeights[idx % 9] * viewportHeight) / 100);
+  const getCeiling = () => isMobile ? viewportHeight * 0.5 : viewportHeight * 0.6;
+
+  let rowIdx = 0;
+  while (i < images.length){
+    // 1. Magazine Hunting (lookahead 5)
+    let mag = false;
+    if (!isMobile){
+      for (let j = i; j < Math.min(i + 5, images.length - 2); j++){
+        const img = images[j];
+        const rV = img.width / img.height;
+        if (rV < 1.0){
+          const n1 = images[j+1], n2 = images[j+2];
+          const r1 = n1.width / n1.height, r2 = n2.width / n2.height;
+          if (r1 > 1.2 && r2 > 1.2){
+            if (j > i) break;
+            const gap = breath;
+            const denom = 1 + rV * (1/r1 + 1/r2);
+            let wS = (effWidth - gap * (1 + rV)) / denom;
+            let wV = effWidth - gap - wS;
+            let hV = wV / rV;
+            let h1 = wS / r1, h2 = wS / r2;
+            const ceiling = viewportHeight * 0.8;
+            if (hV > ceiling){
+              const sc = ceiling / hV;
+              wS *= sc; wV *= sc; hV = ceiling;
+              h1 = wS / r1; h2 = wS / r2;
+            }
+            if (Math.round(wS) >= 300){
+              rows.push({type:'magazine', gap, height: Math.round(hV),
+                magazine: {vert:{img, w:Math.round(wV), h:Math.round(hV)}, top:{img:n1, w:Math.round(wS), h:Math.round(h1)}, bot:{img:n2, w:Math.round(wS), h:Math.round(h2)}}
+              });
+              i += 3; rowIdx++; mag = true; break;
+            }
+          }
+        }
+      }
+    }
+    if (mag) continue;
+
+    // 2. Tablet Hero
+    const cur = images[i];
+    const ratio = cur.width / cur.height;
+    if (isTablet && ratio > 1.8){
+      const hH = Math.floor(0.45 * viewportHeight);
+      rows.push({type:'hero', gap:0, height:hH, items:[{img:cur, w:effWidth, h:hH}]});
+      i++; rowIdx++; continue;
+    }
+
+    // 3. Build standard row
+    const rowItems = [];
+    let widthSum = 0;
+    const targetH = getTargetH(rowIdx);
+    const ceiling = getCeiling();
+    const gap = breath;
+
+    while (i < images.length){
+      const img = images[i];
+      const r = img.width / img.height;
+      const w = r * targetH;
+      const hasVert = rowItems.some(it => (it.width/it.height) < 1.0) || r < 1.0;
+      const maxIn = hasVert ? (isMobile ? 1 : 2) : (isMobile ? 2 : (isUltraWide ? 5 : 4));
+
+      // Mobile Duo Exception : 2 verticales adjacentes
+      if (isMobile && r < 0.9 && rowItems.length === 0 && i+1 < images.length){
+        const nxt = images[i+1];
+        const nr = nxt.width / nxt.height;
+        if (nr < 0.9){
+          const avail = effWidth - gap;
+          const w1 = Math.floor(avail/2), w2 = avail - w1;
+          const h = Math.min(Math.floor(w1 / Math.min(r, nr)), ceiling);
+          rows.push({type:'standard', gap, height:h, items:[{img, w:w1, h}, {img:nxt, w:w2, h}]});
+          i += 2; rowIdx++; break;
+        }
+      }
+
+      // Mobile single column
+      if (isMobile && rowItems.length === 0){
+        const hF = Math.min(Math.round(effWidth / r), ceiling);
+        const wF = Math.round(r * hF);
+        rows.push({type:'single-centered', gap:0, height:hF, items:[{img, w:wF, h:hF}]});
+        i++; rowIdx++; break;
+      }
+
+      // Row completion
+      if (rowItems.length > 0 && (widthSum + w + gap > effWidth || rowItems.length >= maxIn)){
+        const numGaps = rowItems.length - 1;
+        const availForImgs = effWidth - (numGaps * gap);
+        const ratios = rowItems.map(it => it.width / it.height);
+        const totalR = ratios.reduce((a,b)=>a+b, 0);
+        let items, finalH, rowType = 'standard';
+
+        if (rowItems.length === 1){
+          const sc = availForImgs / widthSum;
+          finalH = Math.floor(targetH * sc);
+          if (finalH > ceiling) finalH = Math.floor(ceiling);
+          const r0 = ratios[0];
+          items = [{img: rowItems[0], w: Math.round(r0 * finalH), h: finalH}];
+          rowType = 'single-centered';
+        } else {
+          finalH = Math.round(availForImgs / totalR);
+          const softCeiling = viewportHeight * 0.8;
+          if (finalH > softCeiling){
+            finalH = Math.floor(softCeiling);
+            rowType = 'single-centered';
+          }
+          let used = 0;
+          items = rowItems.map((it, idx) => {
+            const r = ratios[idx];
+            let iw;
+            if (idx === rowItems.length - 1) iw = availForImgs - used;
+            else { iw = Math.round(r * finalH); used += iw; }
+            return {img: it, w: iw, h: Math.round(iw / r)};
+          });
+          finalH = Math.max(...items.map(it => it.h));
+        }
+        rows.push({type: rowType, gap, height: finalH, items});
+        rowIdx++; break;
+      }
+
+      rowItems.push(img);
+      widthSum += w;
+      i++;
+
+      // Orphan row
+      if (i === images.length){
+        let finalH = targetH;
+        if (finalH > ceiling) finalH = ceiling;
+        const isOrphSingle = rowItems.length === 1;
+        const items = rowItems.map(it => {
+          const r = it.width / it.height;
+          return {img: it, w: Math.round(r * finalH), h: finalH};
+        });
+        rows.push({type: isOrphSingle ? 'single-centered' : 'standard', gap, height: finalH, items});
+        break;
+      }
+    }
+  }
+  return { rows, breath };
+}
+
+// ============================================================
+// DOM render
+// ============================================================
+function renderGallery(container, layout){
+  container.innerHTML = '';
+  container.style.setProperty('--breath', layout.breath + 'px');
+  for (const row of layout.rows){
+    const rowEl = document.createElement('div');
+    rowEl.className = 'gallery-row ' + row.type;
+    rowEl.style.gap = row.gap + 'px';
+    rowEl.style.height = row.height + 'px';
+
+    if (row.type === 'magazine'){
+      // vertical | (top stack / bot stack)
+      const v = row.magazine.vert;
+      const vEl = document.createElement('div');
+      vEl.className = 'gallery-item';
+      vEl.style.width = v.w + 'px';
+      vEl.style.height = v.h + 'px';
+      vEl.innerHTML = `<img src="${v.img.src}" alt="" loading="lazy">`;
+      rowEl.appendChild(vEl);
+      const stack = document.createElement('div');
+      stack.className = 'stack';
+      stack.style.gap = row.gap + 'px';
+      for (const part of [row.magazine.top, row.magazine.bot]){
+        const it = document.createElement('div');
+        it.className = 'gallery-item';
+        it.style.width = part.w + 'px';
+        it.style.height = part.h + 'px';
+        it.innerHTML = `<img src="${part.img.src}" alt="" loading="lazy">`;
+        stack.appendChild(it);
+      }
+      rowEl.appendChild(stack);
+    } else {
+      for (const it of row.items){
+        const el = document.createElement('div');
+        el.className = 'gallery-item';
+        el.style.width = it.w + 'px';
+        el.style.height = it.h + 'px';
+        el.innerHTML = `<img src="${it.img.src}" alt="" loading="lazy">`;
+        rowEl.appendChild(el);
+      }
+    }
+    container.appendChild(rowEl);
+  }
+}
+
+// ============================================================
+// Bootstrap — load image manifests + observe resize
+// ============================================================
+async function init(){
+  // Charger les manifests JSON
+  let finalImages = [], makingImages = [];
+  try {
+    const [finRes, mkRes] = await Promise.all([
+      fetch('img/final/manifest.json').then(r => r.ok ? r.json() : []),
+      fetch('img/making/manifest.json').then(r => r.ok ? r.json() : [])
+    ]);
+    finalImages = await loadGalleryImages(finRes.map(f => 'img/final/' + f));
+    makingImages = await loadGalleryImages(mkRes.map(f => 'img/making/' + f));
+  } catch(e){ console.warn('Manifests not yet available', e); }
+
+  const notice = document.getElementById('loading-notice');
+  if (finalImages.length === 0 && makingImages.length === 0){
+    notice.textContent = '⚠️ Image manifests not yet uploaded. Tristan : exports images en cours dans /Pictures/010- New/0-Work 2 Edit/Mbappe-Shoot/100- Final selection web/ et /200- Making of web/ — push automatique au retour.';
+    return;
+  }
+  notice.remove();
+
+  const finalEl = document.getElementById('gallery-final');
+  const makingEl = document.getElementById('gallery-making');
+
+  function relayout(){
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if (finalImages.length){
+      const cw = finalEl.clientWidth || finalEl.parentElement.clientWidth;
+      const lay = calculateLayout(finalImages, cw, vw, vh);
+      if (lay && lay.rows) renderGallery(finalEl, lay);
+    }
+    if (makingImages.length){
+      const cw = makingEl.clientWidth || makingEl.parentElement.clientWidth;
+      const lay = calculateLayout(makingImages, cw, vw, vh);
+      if (lay && lay.rows) renderGallery(makingEl, lay);
+    }
+  }
+
+  relayout();
+  let ro = new ResizeObserver(() => requestAnimationFrame(relayout));
+  ro.observe(document.body);
+  window.addEventListener('resize', () => requestAnimationFrame(relayout));
+}
+
+init();
+</script>
+
+</body></html>
