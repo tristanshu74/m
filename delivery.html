@@ -11,8 +11,8 @@
   --line:#ebebed;--card:#fbfbfd;--ok:#1d8649;--prog:#a86b2e;--todo:#86868b;
 }
 @media(prefers-color-scheme:dark){
-  :root{--bg:#000;--fg:#f5f5f7;--muted:#86868b;--accent:#f5f5f7;--accent-h:#fff;
-  --line:#2a2a2c;--card:#1d1d1f;--ok:#30d158;--prog:#c9821e;--todo:#86868b}
+  :root{--bg:#000;--fg:#f5f5f7;--body:#d2d2d7;--muted:#86868b;--accent:#f5f5f7;--accent-h:#fff;
+  --line:#3a3a3c;--card:#1d1d1f;--ok:#30d158;--prog:#c9821e;--todo:#86868b}
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
@@ -56,16 +56,16 @@ header.hero .sub{font-size:21px;line-height:1.4;color:var(--muted);font-weight:4
 .deliverables h2{font-size:32px;font-weight:600;letter-spacing:-.02em;text-align:center;margin-bottom:8px}
 .deliverables .sect-sub{font-size:17px;color:var(--muted);text-align:center;margin-bottom:44px}
 
-.deliverable{padding:36px 0;border-top:.5px solid var(--line);display:grid;grid-template-columns:60px 1fr auto;gap:24px;align-items:start}
+.deliverable{padding:44px 0;border-top:.5px solid var(--line);display:grid;grid-template-columns:60px 1fr auto;gap:28px;align-items:start}
 .deliverable:last-of-type{border-bottom:0}
 @media(max-width:720px){.deliverable{grid-template-columns:48px 1fr;gap:16px}.deliverable .action-col{grid-column:2/-1;margin-top:8px}}
 
-.deliverable .num{font-size:48px;font-weight:200;color:var(--muted);line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;opacity:.45}
+.deliverable .num{font-size:44px;font-weight:300;color:var(--muted);line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;opacity:.75;font-feature-settings:"tnum","ss01"}
 @media(max-width:720px){.deliverable .num{font-size:36px}}
 
-.deliverable .content h3{font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.27;margin-bottom:8px}
-.deliverable .content .desc{font-size:15px;line-height:1.5;color:var(--muted)}
-.deliverable .content .desc strong{color:var(--fg);font-weight:500}
+.deliverable .content h3{font-size:24px;font-weight:600;letter-spacing:-.015em;line-height:1.25;margin-bottom:10px}
+.deliverable .content .desc{font-size:17px;line-height:1.6;color:var(--body);letter-spacing:-.01em}
+.deliverable .content .desc strong{color:var(--fg);font-weight:600}
 .deliverable .content .desc ul{list-style:none;padding:0;margin:8px 0 0}
 .deliverable .content .desc li{padding-left:18px;position:relative;margin:3px 0}
 .deliverable .content .desc li::before{content:"·";position:absolute;left:6px;color:var(--muted)}
