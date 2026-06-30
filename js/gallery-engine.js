@@ -235,3 +235,118 @@ function renderGallery(container, layout){
 }
 
 window.TristanShuGallery = { loadGalleryImages, calculateLayout, renderGallery };
+
+// ============================================================
+// LIGHTBOX — fullscreen viewer (click image, ESC, arrows, swipe)
+// ============================================================
+const Lightbox = {
+  el: null, imgEl: null, captionEl: null,
+  images: [], currentIdx: 0,
+  init(){
+    if (this.el) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'lightbox';
+    overlay.innerHTML = `
+      <button class="lb-close" aria-label="Close">✕</button>
+      <button class="lb-prev" aria-label="Previous">‹</button>
+      <button class="lb-next" aria-label="Next">›</button>
+      <div class="lb-image-wrap"><img class="lb-image" alt=""></div>
+      <div class="lb-caption"></div>
+    `;
+    document.body.appendChild(overlay);
+    const style = document.createElement('style');
+    style.textContent = `
+      #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:1000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+      #lightbox.open{display:flex;opacity:1}
+      #lightbox .lb-image-wrap{max-width:95vw;max-height:95vh;display:flex;align-items:center;justify-content:center}
+      #lightbox .lb-image{max-width:95vw;max-height:90vh;object-fit:contain;display:block;cursor:zoom-out;border-radius:2px;transition:opacity .25s ease;opacity:1}
+      #lightbox .lb-image.loading{opacity:.3}
+      #lightbox .lb-close,#lightbox .lb-prev,#lightbox .lb-next{position:absolute;background:rgba(255,255,255,.08);color:#fff;border:0;cursor:pointer;font-family:-apple-system,system-ui;line-height:1;border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:background .2s ease,transform .2s ease}
+      #lightbox .lb-close:hover,#lightbox .lb-prev:hover,#lightbox .lb-next:hover{background:rgba(255,255,255,.18)}
+      #lightbox .lb-close{top:20px;right:20px;width:44px;height:44px;font-size:18px}
+      #lightbox .lb-prev,#lightbox .lb-next{top:50%;transform:translateY(-50%);width:52px;height:52px;font-size:32px;font-weight:300}
+      #lightbox .lb-prev{left:24px}
+      #lightbox .lb-next{right:24px}
+      #lightbox .lb-prev:hover{transform:translateY(-50%) translateX(-3px)}
+      #lightbox .lb-next:hover{transform:translateY(-50%) translateX(3px)}
+      #lightbox .lb-caption{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;font-feature-settings:"tnum"}
+      @media(max-width:600px){
+        #lightbox .lb-image{max-width:100vw;max-height:85vh}
+        #lightbox .lb-close{top:14px;right:14px;width:40px;height:40px}
+        #lightbox .lb-prev,#lightbox .lb-next{width:44px;height:44px;font-size:26px}
+        #lightbox .lb-prev{left:8px}
+        #lightbox .lb-next{right:8px}
+      }
+      .gallery-item{cursor:zoom-in;transition:opacity .2s ease}
+      .gallery-item:hover{opacity:.92}
+    `;
+    document.head.appendChild(style);
+    this.el = overlay;
+    this.imgEl = overlay.querySelector('.lb-image');
+    this.captionEl = overlay.querySelector('.lb-caption');
+    overlay.querySelector('.lb-close').addEventListener('click', () => this.close());
+    overlay.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); this.prev(); });
+    overlay.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); this.next(); });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target.classList.contains('lb-image-wrap')) this.close(); });
+    this.imgEl.addEventListener('click', () => this.close());
+    document.addEventListener('keydown', (e) => {
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape') this.close();
+      else if (e.key === 'ArrowLeft') this.prev();
+      else if (e.key === 'ArrowRight') this.next();
+    });
+    // Swipe mobile
+    let touchStartX = 0;
+    overlay.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, {passive:true});
+    overlay.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50){ if (dx > 0) this.prev(); else this.next(); }
+    }, {passive:true});
+  },
+  open(images, idx){
+    this.init();
+    this.images = images;
+    this.currentIdx = idx;
+    this.show();
+    requestAnimationFrame(() => this.el.classList.add('open'));
+    document.body.style.overflow = 'hidden';
+  },
+  close(){
+    this.el.classList.remove('open');
+    setTimeout(() => { document.body.style.overflow = ''; }, 300);
+  },
+  show(){
+    const img = this.images[this.currentIdx];
+    this.imgEl.classList.add('loading');
+    const tmp = new Image();
+    tmp.onload = () => {
+      this.imgEl.src = tmp.src;
+      this.imgEl.classList.remove('loading');
+    };
+    tmp.src = img.src;
+    this.captionEl.textContent = `${this.currentIdx + 1} / ${this.images.length}`;
+  },
+  prev(){ this.currentIdx = (this.currentIdx - 1 + this.images.length) % this.images.length; this.show(); },
+  next(){ this.currentIdx = (this.currentIdx + 1) % this.images.length; this.show(); }
+};
+
+// Attach lightbox to gallery items after render
+const _origRender = window.TristanShuGallery?.renderGallery || renderGallery;
+function renderGalleryWithLightbox(container, layout){
+  _origRender(container, layout);
+  // Flatten all images for navigation
+  const flat = [];
+  for (const row of layout.rows){
+    if (row.type === 'magazine'){
+      flat.push(row.magazine.vert.img, row.magazine.top.img, row.magazine.bot.img);
+    } else if (row.items){
+      for (const it of row.items) flat.push(it.img);
+    }
+  }
+  const items = container.querySelectorAll('.gallery-item');
+  items.forEach((el, idx) => {
+    el.addEventListener('click', () => Lightbox.open(flat, idx));
+  });
+}
+window.TristanShuGallery.renderGallery = renderGalleryWithLightbox;
+window.TristanShuGallery.Lightbox = Lightbox;
