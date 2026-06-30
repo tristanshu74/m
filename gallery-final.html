@@ -35,7 +35,7 @@ footer{padding:32px 22px 56px;text-align:center;border-top:.5px solid var(--line
 footer strong{color:var(--fg);font-weight:500}
 </style>
 </head><body>
-<nav><div class="wrap"><span class="brand">Tristan Shu</span><span class="sep">·</span><span>Final selection</span><a class="back" href="delivery2.html">← Back to delivery</a></div></nav>
+<nav><div class="wrap"><span class="brand">Tristan Shu</span><span class="sep">·</span><span>Final selection</span><a class="back" href="delivery.html">← Back to delivery</a></div></nav>
 <header class="gallery-hero">
   <p class="eyebrow">Mbappé Project · Under embargo</p>
   <h1>Final selection.</h1>
@@ -52,7 +52,7 @@ footer strong{color:var(--fg);font-weight:500}
   function relayout(){
     const vw = window.innerWidth, vh = window.innerHeight;
     const cw = el.clientWidth || el.parentElement.clientWidth || vw;
-    const mode = new URLSearchParams(window.location.search).get('mode') || 'editorial';
+    const mode = new URLSearchParams(window.location.search).get('mode') || 'chronological'; // override page Mbappé Tristan : ordre source strict respecté
     const lay = TristanShuGallery.calculateLayout(images, cw, vw, vh, { mode });
     TristanShuGallery.renderGallery(el, lay);
   }
