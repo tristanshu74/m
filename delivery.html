@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="theme-color" content="#000000">
+<title>Mbappé Project · Tristan Shu × Fujifilm</title>
+<style>
+:root{
+  --bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--accent:#1d1d1f;--accent-h:#000;
+  --line:#ebebed;--card:#fbfbfd;--ok:#1d8649;--prog:#a86b2e;--todo:#86868b;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#000;--fg:#f5f5f7;--muted:#86868b;--accent:#f5f5f7;--accent-h:#fff;
+  --line:#2a2a2c;--card:#1d1d1f;--ok:#30d158;--prog:#c9821e;--todo:#86868b}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font:17px/1.47 -apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-weight:400;letter-spacing:-.022em;font-feature-settings:"ss01","ss02","cv11";font-optical-sizing:auto;hanging-punctuation:first last}
+a{color:var(--accent);text-decoration:none;transition:color .15s}
+a:hover{color:var(--accent-h)}
+
+/* Navigation */
+nav{position:sticky;top:0;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--line);z-index:50}
+@media(prefers-color-scheme:dark){nav{background:rgba(0,0,0,.72)}}
+nav .wrap{max-width:980px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:20px;font-size:14px;font-weight:500}
+nav .brand{font-weight:600;letter-spacing:-.01em}
+nav .sep{color:var(--muted);font-weight:400}
+nav .meta{margin-left:auto;color:var(--muted);font-weight:400;font-size:13px}
+
+main{max-width:980px;margin:0 auto;padding:0 22px}
+
+/* Hero */
+header.hero{padding:96px 0 80px;text-align:center}
+header.hero .eyebrow{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.06em;margin-bottom:18px;text-transform:uppercase}
+header.hero h1{font-size:56px;line-height:1.07;font-weight:600;letter-spacing:-.02em;margin-bottom:18px}
+header.hero .sub{font-size:21px;line-height:1.4;color:var(--muted);font-weight:400;max-width:640px;margin:0 auto;letter-spacing:.012em}
+@media(max-width:600px){header.hero{padding:60px 0 48px}header.hero h1{font-size:36px}header.hero .sub{font-size:17px}}
+
+/* Section intro */
+.intro{padding:48px 0;border-top:.5px solid var(--line);border-bottom:.5px solid var(--line);text-align:center}
+.intro p{max-width:640px;margin:0 auto;font-size:19px;line-height:1.5;color:var(--fg)}
+.intro p strong{font-weight:600}
+
+/* Timeline */
+.timeline-compact{padding:32px 0 24px;border-top:.5px solid var(--line);border-bottom:.5px solid var(--line)}
+.cal-row{display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
+.cal-cell{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px}
+.cal-cell .cal-date{font-weight:600;letter-spacing:-.01em;color:var(--muted);font-size:14px}
+.cal-cell.active .cal-date{color:var(--fg)}
+.cal-cell .cal-label{color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+@media(max-width:600px){.cal-row{gap:24px;flex-direction:column}}
+
+/* Deliverables */
+.deliverables{padding:64px 0 32px}
+.deliverables h2{font-size:32px;font-weight:600;letter-spacing:-.02em;text-align:center;margin-bottom:8px}
+.deliverables .sect-sub{font-size:17px;color:var(--muted);text-align:center;margin-bottom:44px}
+
+.deliverable{padding:36px 0;border-top:.5px solid var(--line);display:grid;grid-template-columns:60px 1fr auto;gap:24px;align-items:start}
+.deliverable:last-of-type{border-bottom:0}
+@media(max-width:720px){.deliverable{grid-template-columns:48px 1fr;gap:16px}.deliverable .action-col{grid-column:2/-1;margin-top:8px}}
+
+.deliverable .num{font-size:48px;font-weight:200;color:var(--muted);line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;opacity:.45}
+@media(max-width:720px){.deliverable .num{font-size:36px}}
+
+.deliverable .content h3{font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.27;margin-bottom:8px}
+.deliverable .content .desc{font-size:15px;line-height:1.5;color:var(--muted)}
+.deliverable .content .desc strong{color:var(--fg);font-weight:500}
+.deliverable .content .desc ul{list-style:none;padding:0;margin:8px 0 0}
+.deliverable .content .desc li{padding-left:18px;position:relative;margin:3px 0}
+.deliverable .content .desc li::before{content:"·";position:absolute;left:6px;color:var(--muted)}
+.deliverable .content .note{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic}
+
+.status{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:980px;font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;white-space:nowrap}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;display:inline-block;background:currentColor}
+.status.ok{background:rgba(29,134,73,.10);color:var(--ok)}
+.status.ok::before{background:var(--ok)}
+.status.prog{background:rgba(168,107,46,.10);color:var(--prog)}
+.status.prog::before{background:var(--prog)}
+.status.todo{background:rgba(134,134,139,.12);color:var(--todo)}
+.status.todo::before{background:var(--todo)}
+.status.check{background:rgba(134,134,139,.12);color:var(--muted)}
+.status.check::before{background:var(--muted)}
+
+.btn-open{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--bg)!important;padding:11px 20px;border-radius:4px;font-size:14px;font-weight:500;letter-spacing:.01em;margin-top:14px;transition:background 350ms cubic-bezier(.22,1,.36,1),transform 350ms cubic-bezier(.22,1,.36,1)}
+.btn-open::after{content:"→";font-size:15px;display:inline-block;transition:transform 350ms cubic-bezier(.22,1,.36,1)}
+@media (hover:hover) and (pointer:fine){.btn-open:hover{background:var(--accent-h);color:var(--bg)!important}.btn-open:hover::after{transform:translateX(5px)}}
+.btn-open:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* Guidelines */
+.guidelines{padding:64px 0;border-top:.5px solid var(--line)}
+.guidelines h2{font-size:28px;font-weight:600;letter-spacing:-.02em;text-align:center;margin-bottom:36px}
+.guidelines-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+@media(max-width:600px){.guidelines-grid{grid-template-columns:1fr}}
+.guidelines-item{font-size:14px;line-height:1.5;color:var(--muted);padding-left:18px;position:relative}
+.guidelines-item::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--muted)}
+.guidelines-item strong{color:var(--fg);font-weight:500}
+
+/* Footer */
+footer{padding:48px 0 64px;text-align:center;border-top:.5px solid var(--line);font-size:12px;color:var(--muted);line-height:1.5}
+footer strong{color:var(--fg);font-weight:500}
+footer .conf{margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+</style>
+</head><body>
+
+<nav>
+<div class="wrap">
+  <span class="brand">Tristan Shu</span>
+  <span class="sep">·</span>
+  <span>Mbappé Project</span>
+  <span class="meta">Updated June 30 · 14:32</span>
+</div>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="eyebrow">Photographer Project · Confidential under embargo</div>
+  <h1>Mbappé Project</h1>
+  <p class="sub">Director's selection by Tristan Shu — tracking the assets defined in Fujifilm's project roadmap.</p>
+</header>
+
+<section class="timeline timeline-compact">
+  <div class="cal-row">
+    <div class="cal-cell active"><span class="cal-date">July 6</span><span class="cal-label">Finals · stills + BTS reel</span></div>
+    <div class="cal-cell"><span class="cal-date">July 21</span><span class="cal-label">Japan delivery</span></div>
+  </div>
+</section>
+
+<section class="deliverables">
+  <h2>Deliverables</h2>
+  <div class="sect-sub">Status, specifications, and direct access to assets.</div>
+
+<div class="deliverable">
+  <div class="num">01</div>
+  <div class="content">
+    <h3>Image Works — Project selection</h3>
+    <div class="desc">
+      <strong>Brief —</strong> At least 15 project images, including at least 1 RAW file and 1 SOOC image.
+      <ul><li>20 images delivered</li><li>Captured on Fujifilm X-T6 across 3 bodies</li><li>Editorial selection developed in Lightroom. A 5-image SOOC subset showing native camera rendering is presented in section 01bis.</li></ul>
+    </div>
+    <a class="btn-open" href="https://adobe.ly/4eRrF1J" target="_blank">Open final selection</a>
+  </div>
+  <div class="action-col"><span class="status ok">Curated</span></div>
+</div>
+
+
+<div class="deliverable">
+  <div class="num">01<span style="font-size:.5em;letter-spacing:0;opacity:.7">bis</span></div>
+  <div class="content">
+    <h3>Straight Out of Camera — film simulation showcase</h3>
+    <div class="desc">
+      <strong>Brief —</strong> At least 1 SOOC image — JPEG straight from the body, no retouching.
+      <ul><li>5 frames delivered — <strong>FORTE CHROME</strong> (×3), <strong>Velvia</strong> (×1), <strong>ACROS Green Filter</strong> (×1)</li><li>Full EXIF preserved · lens, aperture, shutter, ISO</li></ul>
+    </div>
+    <a class="btn-open" href="sooc.html" target="_blank">Open SOOC gallery</a>
+  </div>
+  <div class="action-col"><span class="status ok">Curated</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">02</div>
+  <div class="content">
+    <h3>Lifestyle Images — Camera in context</h3>
+    <div class="desc">
+      <strong>Brief —</strong> At least 10 lifestyle photographs (product on location, photographer using the camera).
+      <ul><li>17 images delivered · "Photographer in action" frames captured by the project team across multiple Fujifilm bodies.</li></ul>
+    </div>
+    <a class="btn-open" href="https://adobe.ly/4vFv4rB" target="_blank">Open making of and pack shots</a>
+  </div>
+  <div class="action-col"><span class="status ok">Curated</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">03</div>
+  <div class="content">
+    <h3>BTS Movie — Behind the Scenes</h3>
+    <div class="desc">
+      <strong>Brief —</strong> Filmed on Fujifilm system (X Series or GFX), MP4 format.
+    </div>
+    <div class="note">Captured · post-production in progress with NOESYS (Cyril Vernusse). V1 targeted for July 6.</div>
+  </div>
+  <div class="action-col"><span class="status prog">Captured</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">04</div>
+  <div class="content">
+    <h3>Short BTS Reel — Under 60 seconds, 16:9</h3>
+    <div class="desc">
+      <strong>Brief —</strong> Under 60 s, 16:9 format, captured on Fujifilm system.
+    </div>
+    <div class="note">Captured · post-production in progress with NOESYS. V1 targeted for July 6.</div>
+  </div>
+  <div class="action-col"><span class="status prog">Captured</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">05</div>
+  <div class="content">
+    <h3>X Story article</h3>
+    <div class="desc">
+      <strong>Brief —</strong> 700-1000 words, Word document, text only.
+      <ul><li>French and English versions</li><li>Reference: fujifilm-x.com/stories</li></ul>
+    </div>
+    <div class="note">Drafting after final photo selection lock. Delivery targeted for July 21.</div>
+  </div>
+  <div class="action-col"><span class="status todo">Upcoming</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">06</div>
+  <div class="content">
+    <h3>Photographer's Impression Video</h3>
+    <div class="desc">
+      <strong>Brief —</strong> On-camera interview with B-roll. Final cut handled by Fujifilm Japan.
+    </div>
+    <div class="note">Interview and B-roll captured with NOESYS. Fujifilm Japan editing on their side.</div>
+  </div>
+  <div class="action-col"><span class="status prog">Captured</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">07</div>
+  <div class="content">
+    <h3>YouTube Thumbnail</h3>
+    <div class="desc"><strong>Brief —</strong> One 16:9 thumbnail for the YouTube video.</div>
+    <div class="note">To be produced from the final selection.</div>
+  </div>
+  <div class="action-col"><span class="status todo">Upcoming</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">08</div>
+  <div class="content">
+    <h3>YouTube Description and Equipment List</h3>
+    <div class="desc"><strong>Brief —</strong> Project description and complete list of equipment used (bodies, lenses, accessories) for the YouTube page.</div>
+    <a class="btn-open" href="equipment.html" target="_blank">Open equipment list</a>
+  </div>
+  <div class="action-col"><span class="status ok">Curated</span></div>
+</div>
+
+<div class="deliverable">
+  <div class="num">09</div>
+  <div class="content">
+    <h3>YouTube Account for collaboration post</h3>
+    <div class="desc"><strong>Brief —</strong> YouTube channel provided for Fujifilm collaboration post.
+      <ul><li>Channel: <strong>youtube.com/@tristanshu9152</strong></li></ul>
+    </div>
+  </div>
+  <div class="action-col"><span class="status ok">Curated</span></div>
+</div>
+
+</section>
+
+
+
+<footer>
+  <strong>Tristan Shu Lebeschu</strong> · Photographer · +33 6 81 36 86 29 · shu@tristanshu.com<br>
+  <div class="conf">Confidential project · X-T6 Mbappé X Summit 2026 · Under embargo</div>
+</footer>
+
+</main>
+
+
+<script>
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var els=document.querySelectorAll('.deliverable, .timeline-item, .guidelines-item');
+  els.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(16px)';el.style.transition='opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)';});
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e,i){
+      if(e.isIntersecting){
+        setTimeout(function(){e.target.style.opacity='1';e.target.style.transform='translateY(0)';},i*40);
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(function(el){io.observe(el);});
+})();
+</script>
+
+</body></html>
