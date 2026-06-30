@@ -54,12 +54,31 @@ function distributeWidths(items, rowWidth, gap, targetHeight){
   });
 }
 
-// PATCH BUG 5 : Pair verticales baseline — hauteurs égales
-function pairVerticalsBaseline(v1, v2, rowWidth, gap){
+
+// PATCH viewport ceiling (verdict /ask-design-system 4/5 Vignelli+Vinh+Norman+Goffman vs Krug)
+// 82vh row / 92vh hero / 70vh mobile, soustrait nav sticky 50px
+const NAV_STICKY_PX = 50;
+function getViewportCeiling(kind = 'row', viewportHeight = window.innerHeight, viewportWidth = window.innerWidth){
+  const vh = viewportHeight - NAV_STICKY_PX;
+  const isMobile = viewportWidth < 768;
+  if (isMobile) return Math.floor(vh * 0.70);
+  return Math.floor(vh * (kind === 'hero' ? 0.92 : 0.82));
+}
+
+// PATCH BUG 5 : Pair verticales baseline — hauteurs égales + CEILING viewport
+function pairVerticalsBaseline(v1, v2, rowWidth, gap, viewportHeight, viewportWidth){
   const r1 = v1.width / v1.height;
   const r2 = v2.width / v2.height;
   const availW = rowWidth - gap;
-  const h = Math.floor(availW / (r1 + r2));
+  let h = Math.floor(availW / (r1 + r2));
+  // CEILING viewport — verdict experts : voir vignette entière > impact grand
+  const hMax = getViewportCeiling('row', viewportHeight, viewportWidth);
+  if (h > hMax){
+    h = hMax;
+    const w1 = Math.floor(h * r1);
+    const w2 = Math.floor(h * r2);
+    return [{ img:v1, w:w1, h }, { img:v2, w:w2, h }];
+  }
   const w1 = Math.floor(h * r1);
   const w2 = availW - w1;
   return [{ img:v1, w:w1, h }, { img:v2, w:w2, h }];
@@ -77,14 +96,14 @@ function detectMagazineStrict(images, i){
   return null;
 }
 
-function buildMagazineRow(detection, effWidth, gap, viewportHeight){
+function buildMagazineRow(detection, effWidth, gap, viewportHeight, viewportWidth){
   const { vert, top, bot, rV, r1, r2 } = detection;
   const denom = 1 + rV * (1/r1 + 1/r2);
   let wS = (effWidth - gap * (1 + rV)) / denom;
   let wV = effWidth - gap - wS;
   let hV = wV / rV;
   let h1 = wS / r1, h2 = wS / r2;
-  const ceiling = viewportHeight * 0.8;
+  const ceiling = getViewportCeiling('row', viewportHeight, viewportWidth);
   if (hV > ceiling){
     const sc = ceiling / hV;
     wS *= sc; wV *= sc; hV = ceiling;
@@ -119,7 +138,7 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
   const effWidth = containerWidth;
   const targetHeights = [38, 42, 40, 44, 36, 41, 39, 43, 37];
   const getTargetH = (idx) => Math.floor((targetHeights[idx % 9] * viewportHeight) / 100);
-  const getCeiling = () => isMobile ? viewportHeight * 0.55 : viewportHeight * 0.6;
+  const getCeiling = () => getViewportCeiling('row', viewportHeight, viewportWidth);
   let rowIdx = 0;
 
   while (i < images.length){
@@ -128,7 +147,7 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
     if (!isMobile && mode === 'editorial'){
       const mag = detectMagazineStrict(images, i);
       if (mag){
-        rows.push(buildMagazineRow(mag, effWidth, gap, viewportHeight));
+        rows.push(buildMagazineRow(mag, effWidth, gap, viewportHeight, viewportWidth));
         i += 3; rowIdx++; continue;
       }
     }
@@ -136,9 +155,9 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
     const cur = images[i];
     const r = cur.width / cur.height;
 
-    // PATCH 6 : ORPHAN DERNIÈRE IMAGE = HERO CLOSING (90vh max)
+    // PATCH 6 : ORPHAN DERNIÈRE IMAGE = HERO CLOSING (ceiling hero 92vh moins nav)
     if (i === images.length - 1){
-      const maxH = viewportHeight * 0.9;
+      const maxH = getViewportCeiling('hero', viewportHeight, viewportWidth);
       const wByH = r * maxH;
       let w, h;
       if (wByH <= effWidth){ w = Math.round(wByH); h = Math.round(maxH); }
@@ -154,7 +173,7 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
         const nxt = images[i+1];
         const nr = nxt.width / nxt.height;
         if (nr < 0.9){
-          const pair = pairVerticalsBaseline(cur, nxt, effWidth, gap);
+          const pair = pairVerticalsBaseline(cur, nxt, effWidth, gap, viewportHeight, viewportWidth);
           rows.push({ type: 'vertical-pair', gap, height: pair[0].h, items: pair });
           i += 2; rowIdx++; continue;
         }
@@ -170,7 +189,7 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
       const nxt = images[i+1];
       const nr = nxt.width / nxt.height;
       if (nr < 0.9){
-        const pair = pairVerticalsBaseline(cur, nxt, effWidth, gap);
+        const pair = pairVerticalsBaseline(cur, nxt, effWidth, gap, viewportHeight, viewportWidth);
         rows.push({ type: 'vertical-pair', gap, height: pair[0].h, items: pair });
         i += 2; rowIdx++; continue;
       }
@@ -225,10 +244,10 @@ function calculateLayout(images, containerWidth, viewportWidth, viewportHeight, 
           }
           rows.push({ type: 'standard', gap, height: Math.max(...items.map(it=>it.h)), items });
         } else {
-          // 1 seule image en rowItems → hero closing (sera traité par early-return prochaine itération... mais on est déjà à i==length)
+          // 1 seule image en rowItems → hero closing
           const item = rowItems[0];
           const itemR = item.width / item.height;
-          const maxH = viewportHeight * 0.9;
+          const maxH = getViewportCeiling('hero', viewportHeight, viewportWidth);
           const wByH = itemR * maxH;
           let w, h;
           if (wByH <= effWidth){ w = Math.round(wByH); h = Math.round(maxH); }
